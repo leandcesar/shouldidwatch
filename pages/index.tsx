@@ -55,6 +55,23 @@ const Page: React.FC<IPage> = ({ tz, now: initialNow, initialChoice, initialReas
     }
   }, [])
 
+  useEffect(() => {
+    const currentUrl = new URL(window.location.toString())
+    const timezoneFromQuery = currentUrl.searchParams.get('tz')
+
+    if (timezoneFromQuery && Time.zoneExists(timezoneFromQuery)) {
+      return
+    }
+
+    const browserTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone
+    if (!browserTimezone || !Time.zoneExists(browserTimezone)) {
+      return
+    }
+
+    setTimezone(browserTimezone)
+    setNow(new Time(browserTimezone))
+  }, [])
+
   const applyTheme = (newTheme: ThemeType) => {
     document.documentElement.setAttribute('data-theme', newTheme)
   }
