@@ -1,5 +1,5 @@
 import { useTranslation } from "../helpers/i18n";
-import Filter, { ContentTypeFilter } from "./filter";
+import Filter, { ContentTypeFilter, LinkSiteFilter, PreferredLinkSite } from "./filter";
 import Timezone from "./timezone";
 
 interface IFooter {
@@ -9,6 +9,8 @@ interface IFooter {
   toggleTheme: () => void;
   filterPreset: ContentTypeFilter;
   changeFilterPreset: (preset: ContentTypeFilter) => void;
+  preferredLinkSite: PreferredLinkSite;
+  changePreferredLinkSite: (site: PreferredLinkSite) => void;
 }
 
 const Footer = (props: IFooter) => {
@@ -33,6 +35,14 @@ const Footer = (props: IFooter) => {
         <li>
           {t("footer.filter")}{" "}
           <Filter onChange={props.changeFilterPreset} value={props.filterPreset} />
+        </li>
+
+        <li>
+          {t("footer.open_titles_on")}{" "}
+          <LinkSiteFilter
+            onChange={props.changePreferredLinkSite}
+            value={props.preferredLinkSite}
+          />
         </li>
 
       </ul>

@@ -5,7 +5,7 @@ import Time from '../helpers/time'
 import Widget from '../component/widget'
 import { useTranslation } from '../helpers/i18n'
 import Footer from '../component/footer'
-import { ContentTypeFilter } from '../component/filter'
+import { ContentTypeFilter, PreferredLinkSite } from '../component/filter'
 import Router from 'next/router'
 import { Theme, ThemeType } from '../helpers/themes'
 
@@ -39,6 +39,7 @@ const Page: React.FC<IPage> = ({ tz, now: initialNow, initialChoice, initialReas
     person: true
   })
   const [filterPreset, setFilterPreset] = useState<ContentTypeFilter>('all')
+  const [preferredLinkSite, setPreferredLinkSite] = useState<PreferredLinkSite>('imdb')
 
   useEffect(() => {
     const savedTheme = localStorage.getItem('theme') as ThemeType | null
@@ -52,6 +53,13 @@ const Page: React.FC<IPage> = ({ tz, now: initialNow, initialChoice, initialReas
         : Theme.Light
       setTheme(systemTheme)
       applyTheme(systemTheme)
+    }
+  }, [])
+
+  useEffect(() => {
+    const savedSite = localStorage.getItem('preferredLinkSite') as PreferredLinkSite | null
+    if (savedSite === 'imdb' || savedSite === 'tmdb' || savedSite === 'letterboxd') {
+      setPreferredLinkSite(savedSite)
     }
   }, [])
 
@@ -102,6 +110,11 @@ const Page: React.FC<IPage> = ({ tz, now: initialNow, initialChoice, initialReas
     setFilters(FILTER_PRESET_MAP[preset])
   }
 
+  const changePreferredLinkSite = (site: PreferredLinkSite) => {
+    setPreferredLinkSite(site)
+    localStorage.setItem('preferredLinkSite', site)
+  }
+
   const { t } = useTranslation()
 
   return (
@@ -119,6 +132,7 @@ const Page: React.FC<IPage> = ({ tz, now: initialNow, initialChoice, initialReas
           reason={initialReason}
           now={now}
           filters={filters}
+          preferredLinkSite={preferredLinkSite}
           onChoiceSelected={setBackgroundUrl}
         />
         <div className="meta">
@@ -129,6 +143,8 @@ const Page: React.FC<IPage> = ({ tz, now: initialNow, initialChoice, initialReas
             toggleTheme={toggleTheme}
             filterPreset={filterPreset}
             changeFilterPreset={changeFilterPreset}
+            preferredLinkSite={preferredLinkSite}
+            changePreferredLinkSite={changePreferredLinkSite}
           />
         </div>
       </div>

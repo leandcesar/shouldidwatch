@@ -54,6 +54,7 @@ a:focus {
   text-align: center;
   width: 100%;
 }
+
 .wrapper {
   min-height: 100vh;
   display: grid;
@@ -73,7 +74,6 @@ a:focus {
   background-repeat: no-repeat;
   transform: scale(1.05);
   z-index: -2;
-  filter: blur(8px);
 }
 
 .wrapper::after {
@@ -111,12 +111,25 @@ a:focus {
   hyphens: auto;
 }
 
+.title-link {
+  color: inherit;
+  text-decoration: none;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.title-link:hover,
+.title-link:focus {
+  opacity: 0.85;
+}
+
 #subtitle {
   font: 300 3rem/3rem -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
     Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
   color: #111;
   hyphens: auto;
-  margin-top: 1.5rem;
+  margin-top: 2rem;
+  line-height: 1.25;
 }
 
 .meta {
@@ -157,6 +170,7 @@ ul.footer-list {
   justify-content: center;
   flex-wrap: wrap;
 }
+
 ul.footer-list:first-of-type {
   margin-bottom: 1.5rem;
   display: block;
@@ -194,10 +208,12 @@ ul.footer-list select {
     font: 300 3rem/2.8rem SFMono-Regular, Menlo, Monaco, Consolas,
       'Liberation Mono', 'Courier New', monospace;
   }
+
   #title {
     font: 900 9rem/8.5rem -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
       Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
   }
+
   #subtitle {
     font: 300 3rem/3rem -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
       Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
@@ -208,9 +224,15 @@ ul.footer-list select {
   .tagline {
     font-size: 1.5rem;
   }
+
+  #subtitle {
+    font-size: 2.5rem;
+  }
+
   #reload {
     font-size: 1.25rem;
   }
+
   ul.footer-list select {
     max-width: 70px;
   }
@@ -296,7 +318,7 @@ ul.footer-list a {
 }
 
 [data-theme='Light'] .wrapper::after {
-  background: rgba(255, 255, 255, 0.65);
+  background: rgba(255, 255, 255, 0.85);
 }
 
 /* Dark Theme */

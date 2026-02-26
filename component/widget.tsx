@@ -2,6 +2,7 @@ import React from 'react'
 import { getRandom } from '../helpers/constants'
 import Time from '../helpers/time'
 import { useTranslation } from '../helpers/i18n'
+import { PreferredLinkSite } from './filter'
 
 type FilterType = 'movie' | 'tv' | 'person'
 type ChoiceType = FilterType
@@ -10,6 +11,8 @@ interface Choice {
   type: ChoiceType
   name: string
   reason: string
+  tmdb_id: number
+  imdb_id: string
   image_path: string | null
   date: string
   release_date?: string
@@ -24,13 +27,41 @@ interface IWidget {
   choice: string
   reason: string
   filters: Record<FilterType, boolean>
+  preferredLinkSite: PreferredLinkSite
   onChoiceSelected?: (imageUrl: string) => void
 }
 
 const Widget = (props: IWidget) => {
   const [choice, setChoices] = React.useState<string>()
   const [reason, setReasons] = React.useState<string>()
+  const [selectedChoice, setSelectedChoice] = React.useState<Choice | null>(null)
+  const sequenceIndexRef = React.useRef(0)
   const { t } = useTranslation()
+
+  const getChoiceUrl = React.useCallback((selected: Choice | null) => {
+    if (!selected) {
+      return null
+    }
+
+    if (props.preferredLinkSite === 'imdb') {
+      return selected.type === 'person'
+        ? `https://www.imdb.com/name/${selected.imdb_id}`
+        : `https://www.imdb.com/title/${selected.imdb_id}`
+    }
+
+    if (props.preferredLinkSite === 'letterboxd') {
+      if (selected.type === 'movie') {
+        return `https://letterboxd.com/tmdb/${selected.tmdb_id}`
+      }
+      return selected.type === 'person'
+        ? `https://www.imdb.com/name/${selected.imdb_id}`
+        : `https://www.imdb.com/title/${selected.imdb_id}`
+    }
+
+    return `https://www.themoviedb.org/${selected.type}/${selected.tmdb_id}`
+  }, [props.preferredLinkSite])
+
+  const choiceUrl = getChoiceUrl(selectedChoice)
 
   /**
    * Get the choice key based on current time
@@ -77,23 +108,27 @@ const Widget = (props: IWidget) => {
     })
   }
 
-  /**
-   * Update and get random choice
-   * @return void
-   */
-  const updateReasons = React.useCallback(() => {
+  const updateReasons = React.useCallback((resetSequence = false) => {
     const choices = getChoices()
     const allChoices = Array.isArray(choices) ? (choices as Choice[]) : []
     const filteredChoices = allChoices.filter((item) => props.filters[item.type])
 
+    if (resetSequence) {
+      sequenceIndexRef.current = 0
+    }
+
     if (filteredChoices.length === 0) {
       setChoices(t('widget.no_results_title'))
       setReasons(t('widget.no_results_reason'))
+      setSelectedChoice(null)
+      sequenceIndexRef.current = 0
       props.onChoiceSelected?.('')
       return
     }
 
-    const choice = getRandom(filteredChoices)
+    const choiceIndex = sequenceIndexRef.current % filteredChoices.length
+    const choice = filteredChoices[choiceIndex]
+    sequenceIndexRef.current = (choiceIndex + 1) % filteredChoices.length
     let title: string = choice.name
     let reason: string = choice.reason
 
@@ -122,11 +157,12 @@ const Widget = (props: IWidget) => {
 
     setChoices(title)
     setReasons(reason)
+    setSelectedChoice(choice)
   }, [getChoices, props.filters, props.onChoiceSelected, t])
 
   React.useEffect(() => {
-    updateReasons()
-  }, [updateReasons])
+    updateReasons(true)
+  }, [updateReasons, props.filters.movie, props.filters.tv, props.filters.person])
 
   /**
    * On hitting Space reload reasons
@@ -160,8 +196,23 @@ const Widget = (props: IWidget) => {
   return (
     <div className="item">
       <h3 className="tagline">{t('tagline')}</h3>
-      <h2 id="title" className="choice">
-        {choice}
+      <h2 className="choice">
+        {choiceUrl ? (
+          <a
+            id="title"
+            className="title-link"
+            href={choiceUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            title={choice}
+          >
+            {choice}
+          </a>
+        ) : (
+          <span id="title" className="title-link">
+            {choice}
+          </span>
+        )}
       </h2>
       <h3 id="subtitle" className="reason">
         {reason}
