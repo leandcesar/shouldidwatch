@@ -42,23 +42,17 @@ const Widget = (props: IWidget) => {
     if (!selected) {
       return null
     }
-
-    if (props.preferredLinkSite === 'imdb') {
-      return selected.type === 'person'
-        ? `https://www.imdb.com/name/${selected.imdb_id}`
-        : `https://www.imdb.com/title/${selected.imdb_id}`
+    if (props.preferredLinkSite === 'tmdb') {
+      return `https://www.themoviedb.org/${selected.type}/${selected.tmdb_id}`
     }
-
     if (props.preferredLinkSite === 'letterboxd') {
       if (selected.type === 'movie') {
         return `https://letterboxd.com/tmdb/${selected.tmdb_id}`
       }
-      return selected.type === 'person'
-        ? `https://www.imdb.com/name/${selected.imdb_id}`
-        : `https://www.imdb.com/title/${selected.imdb_id}`
     }
-
-    return `https://www.themoviedb.org/${selected.type}/${selected.tmdb_id}`
+    return selected.type === 'person'
+      ? `https://www.imdb.com/name/${selected.imdb_id}`
+      : `https://www.imdb.com/title/${selected.imdb_id}`
   }, [props.preferredLinkSite])
 
   const choiceUrl = getChoiceUrl(selectedChoice)
@@ -135,7 +129,7 @@ const Widget = (props: IWidget) => {
     if (['released', 'ended', 'canceled', 'birth', 'death', 'date_in_title'].includes(choice.reason)) {
       reason = 'Why? ' + applyDate(getRandom(t(`reasons.${choice.reason}`)), choice.date)
     } else {
-      reason = 'Why? ' + applyDate(getRandom(t('reasons.featuring'))) + choice.reason
+      reason = 'Why? ' + applyDate(getRandom(t('reasons.featuring'))) + ' ' + choice.reason
     }
 
     if (choice.type === 'movie') {
